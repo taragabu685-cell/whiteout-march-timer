@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101722">
+<title>ホワイトアウト・サバイバル 行軍タイマー</title>
+<style>
+:root{color-scheme:dark;--bg:#101722;--panel:#192433;--line:#334155;--text:#f4f7fb;--muted:#a8b4c5;--green:#39f59b;--gold:#ffd166;--orange:#ffad42;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:18px;max-width:1000px;margin-inline:auto}
+h1{font-size:clamp(1.35rem,4vw,2rem);text-align:center;margin:6px 0 8px}.subtitle{text-align:center;color:var(--muted);margin:0 0 20px;font-size:.95rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}h2{font-size:1.1rem;margin:0 0 12px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:300px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:.86rem;color:var(--muted)}input[type=text],input[type=number]{width:100%;min-width:0;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit}input:focus{outline:2px solid #6aa9ff;outline-offset:1px}.name-input{min-width:90px}.time-input{min-width:100px}
+button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
+.timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}
+.event{font-size:clamp(1.7rem,6vw,3.4rem);font-weight:800;color:var(--green);min-height:1.35em}.next-label{color:var(--muted);margin-top:18px}.next-player{font-size:clamp(1.6rem,5vw,2.5rem);font-weight:800;color:var(--gold);overflow-wrap:anywhere}.remaining{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}.hint{color:var(--muted);font-size:.9rem;line-height:1.6}.results-list,.status-list{display:grid;gap:8px}.copy-note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:8px 0 0}.copy-area{width:100%;min-height:110px;resize:vertical;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit;line-height:1.5}.result-row,.status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;background:#101a27}.result-row strong,.status-row strong{overflow-wrap:anywhere}.done{color:var(--green)}.error{color:var(--red);min-height:1.3em;margin-top:8px}.empty{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
+@media(min-width:700px){.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.columns .panel{margin:0}.timer-panel{padding:20px}}
+</style>
+</head>
+<body>
+<h1>ホワイトアウト・サバイバル</h1>
+<p class="subtitle">同時着弾 行軍タイマー</p>
+<section class="panel">
+<h2>プレイヤー設定</h2>
+<p class="hint">行軍時間を「分:秒」で入力します（例：1:23）。最も行軍時間が長い人が0秒に出征します。</p>
+<div class="table-wrap"><table id="playerTable"><thead><tr><th>プレイヤー名</th><th>行軍時間（分:秒）</th><th>操作</th></tr></thead><tbody></tbody></table></div>
+<div class="controls"><button type="button" id="addBtn">＋ 行追加</button><button type="button" id="calcBtn">計算</button><button type="button" class="primary" id="startBtn">▶ 開始</button><button type="button" id="resetBtn">リセット</button><label class="voice"><input type="checkbox" id="voiceEnabled">秒数を読み上げ</label></div>
+<div id="error" class="error" role="alert"></div>
+</section>
+<section class="panel timer-panel" aria-live="polite">
+<div class="phase" id="phase">開始すると6秒前からカウントダウンします</div>
+<div id="display" class="timer countdown">6</div>
+<div id="event" class="event"></div>
+<div class="next-label">次の出征</div>
+<div id="nextPlayer" class="next-player">---</div>
+<div id="remainingSeconds" class="remaining">---</div>
+</section>
+<div class="columns">
+<section class="panel"><h2>出征タイミング</h2><div id="results" class="results-list"><div class="empty">プレイヤーを入力して「計算」を押してください。</div></div><div class="controls"><button type="button" id="copyBtn">出征タイミングをコピー</button></div><p id="copyNote" class="copy-note" aria-live="polite">チャットに貼り付ける一覧をまとめてコピーできます。</p><textarea id="copyText" class="copy-area" readonly aria-label="チャット貼り付け用の出征タイミング" placeholder="計算すると、ここにチャット用テキストが表示されます"></textarea></section>
+<section class="panel"><h2>進行状況</h2><div id="status" class="status-list"><div class="empty">まだ開始していません。</div></div></section>
+</div>
+<footer>入力内容はこのブラウザ内に保存されます。他の人の入力とは共有されません。</footer>
+<script>
+(() => {
+'use strict';
+const STORAGE_KEY='whiteoutMarchTimer_v2';
+const $=id=>document.getElementById(id);
+let events=[];let triggered=new Set();let mode='idle';let countdownStart=0;let runStart=0;let rafId=null;let lastShown=null;let previousEventText='';
+function parseTime(value){
+ const m=String(value).trim().match(/^(\d+):([0-5]?\d)$/);
+ if(!m)return null;
+ return Number(m[1])*60+Number(m[2]);
+}
+function formatTime(seconds){return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;}
+function saveData(){
+ const data=[...document.querySelectorAll('#playerTable tbody tr')].map(row=>({name:row.querySelector('.name-input').value,time:row.querySelector('.time-input').value}));
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}
+}
+function addRow(name='',time='0:00'){
+ const tr=document.createElement('tr');
+ const td1=document.createElement('td');const nameInput=document.createElement('input');nameInput.type='text';nameInput.className='name-input';nameInput.maxLength=30;nameInput.placeholder='名前';nameInput.value=name;nameInput.setAttribute('aria-label','プレイヤー名');td1.append(nameInput);
+ const td2=document.createElement('td');const timeInput=document.createElement('input');timeInput.type='text';timeInput.className='time-input';timeInput.inputMode='numeric';timeInput.placeholder='1:23';timeInput.value=time;timeInput.setAttribute('aria-label','行軍時間 分:秒');td2.append(timeInput);
+ const td3=document.createElement('td');const remove=document.createElement('button');remove.type='button';remove.className='small danger';remove.textContent='削除';remove.addEventListener('click',()=>{tr.remove();saveData();});td3.append(remove);
+ tr.append(td1,td2,td3);$('playerTable').tBodies[0].append(tr);
+ tr.querySelectorAll('input').forEach(input=>input.addEventListener('input',saveData));saveData();
+}
+function readPlayers(){
+ const rows=[...document.querySelectorAll('#playerTable tbody tr')];const players=[];
+ for(let i=0;i<rows.length;i++){
+  const name=rows[i].querySelector('.name-input').value.trim();const raw=rows[i].querySelector('.time-input').value.trim();
+  if(!name&&!raw)continue;
+  if(!name)throw new Error(`${i+1}行目：プレイヤー名を入力してください。`);
+  const time=parseTime(raw);if(time===null)throw new Error(`${name}：行軍時間を「分:秒」で入力してください（例：1:23）。秒は00〜59です。`);
+  players.push({name,time});
+ }
+ if(!players.length)throw new Error('プレイヤーを1人以上入力してください。');
+ if(players.length<2)throw new Error('プレイヤーを2人以上入力してください。');
+ return players;
+}
+function calculate(showError=true){
+ try{
+  const players=readPlayers();const maxTime=Math.max(...players.map(p=>p.time));
+  events=players.map((p,i)=>({...p,offset:maxTime-p.time,order:i})).sort((a,b)=>a.offset-b.offset||a.order-b.order);
+  $('error').textContent='';renderResults();renderStatus();updateNext(0);return true;
+ }catch(e){if(showError)$('error').textContent=e.message;return false;}
+}
+function renderResults(){
+ $('results').replaceChildren();events.forEach(e=>{const row=document.createElement('div');row.className='result-row';const n=document.createElement('strong');n.textContent=e.name;const t=document.createElement('span');t.textContent=`${e.offset}秒後（行軍 ${formatTime(e.time)}）`;row.append(n,t);$('results').append(row);});
+ const lines=['【出征タイミング】',...events.map(e=>`${e.name}：${e.offset}秒`)];
+ $('copyText').value=lines.join('\n');
+ $('copyNote').textContent='チャットに貼り付ける一覧をまとめてコピーできます。';
+}
+async function copyTimings(){
+ if(!events.length){$('copyNote').textContent='先にプレイヤーを入力して「計算」を押してください。';return;}
+ const text=$('copyText').value;
+ try{
+  if(navigator.clipboard && navigator.clipboard.writeText){await navigator.clipboard.writeText(text);}
+  else{throw new Error('clipboard unavailable');}
+  $('copyNote').textContent='コピーしました！チャット欄に貼り付けてください。';
+ }catch(e){
+  const area=$('copyText');area.focus();area.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(err){}
+  $('copyNote').textContent=ok?'コピーしました！チャット欄に貼り付けてください。':'テキスト欄を選択しました。コピー（Ctrl+C / 長押し）してください。';
+ }
+}
+function renderStatus(){
+ $('status').replaceChildren();if(!events.length){$('status').textContent='まだ開始していません。';return;}
+ events.forEach((e,i)=>{const row=document.createElement('div');row.className='status-row'+(triggered.has(i)?' done':'');const n=document.createElement('span');n.textContent=(triggered.has(i)?'✓ ':'□ ')+e.name;const t=document.createElement('strong');t.textContent=`${e.offset}秒`;row.append(n,t);$('status').append(row);});
+}
+function updateNext(elapsed){
+ const nextIndex=events.findIndex((e,i)=>!triggered.has(i));
+ if(nextIndex<0){$('nextPlayer').textContent='全員出征完了';$('remainingSeconds').textContent='';return;}
+ const e=events[nextIndex];$('nextPlayer').textContent=e.name;
+ $('remainingSeconds').textContent=mode==='countdown'?`開始まで ${Math.max(0,6-Math.floor(elapsed))} 秒`:`あと ${Math.max(0,e.offset-Math.floor(elapsed))} 秒`;
+}
+function speakSecond(second){if(!$('voiceEnabled').checked||!('speechSynthesis'in window))return;const synth=window.speechSynthesis;const u=new SpeechSynthesisUtterance(String(second));u.lang='ja-JP';u.rate=1.15;synth.cancel();synth.speak(u);}
+function fireEventsAt(second){
+ events.forEach((e,i)=>{if(e.offset===second&&!triggered.has(i)){triggered.add(i);$('event').textContent=`${e.name} 出征！`;$('display').classList.remove('launch');void $('display').offsetWidth;$('display').classList.add('launch');}});
+ renderStatus();updateNext(second);
+}
+function stopLoop(){if(rafId!==null)cancelAnimationFrame(rafId);rafId=null;}
+function startTimer(){
+ if(mode!=='idle'&&mode!=='finished'){stopLoop();}
+ if(!calculate())return;
+ triggered=new Set();mode='countdown';countdownStart=performance.now();lastShown=null;$('event').textContent='';$('phase').textContent='準備カウントダウン';$('display').className='timer countdown';renderStatus();tick();
+}
+function tick(){
+ if(mode==='countdown'){
+  const elapsed=(performance.now()-countdownStart)/1000;const shown=Math.max(0,6-Math.floor(elapsed));
+  if(shown!==lastShown){$('display').textContent=String(shown);lastShown=shown;speakSecond(shown);}
+  updateNext(elapsed);
+  if(elapsed>=6){mode='running';runStart=countdownStart+6000;$('phase').textContent='経過秒数';$('display').className='timer';$('display').textContent='0';$('event').textContent='';lastShown=0;fireEventsAt(0);}
+ }else if(mode==='running'){
+  const elapsed=(performance.now()-runStart)/1000;const second=Math.floor(elapsed);
+  if(second!==lastShown){$('display').textContent=String(second);lastShown=second;speakSecond(second);$('display').classList.remove('launch');if(second>0)fireEventsAt(second);else updateNext(second);}
+  if(triggered.size===events.length){mode='finished';$('phase').textContent='すべての出征が完了しました';$('nextPlayer').textContent='全員出征完了';$('remainingSeconds').textContent='';stopLoop();return;}
+ }
+ rafId=requestAnimationFrame(tick);
+}
+function resetTimer(){stopLoop();mode='idle';triggered=new Set();lastShown=null;$('display').textContent='6';$('display').className='timer countdown';$('phase').textContent='開始すると6秒前からカウントダウンします';$('event').textContent='';renderStatus();updateNext(0);}
+function loadData(){
+ let data=null;try{data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');}catch(e){}
+ if(Array.isArray(data)&&data.length){data.forEach(p=>addRow(String(p.name||''),String(p.time||'0:00')));}else{addRow('A','1:00');addRow('B','0:55');addRow('C','0:48');}
+}
+$('addBtn').addEventListener('click',()=>addRow());$('calcBtn').addEventListener('click',()=>{if(calculate())$('phase').textContent='計算完了。開始できます。';});$('startBtn').addEventListener('click',startTimer);$('resetBtn').addEventListener('click',resetTimer);$('copyBtn').addEventListener('click',copyTimings);
+loadData();calculate(false);resetTimer();
+})();
+</script>
+</body>
+</html>
