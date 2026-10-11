@@ -113,7 +113,31 @@ function updateNext(elapsed){
  const e=events[nextIndex];$('nextPlayer').textContent=e.name;
  $('remainingSeconds').textContent=mode==='countdown'?`開始まで ${Math.max(0,6-Math.floor(elapsed))} 秒`:`あと ${Math.max(0,e.offset-Math.floor(elapsed))} 秒`;
 }
-function speakSecond(second){if(!$('voiceEnabled').checked||!('speechSynthesis'in window))return;const synth=window.speechSynthesis;const u=new SpeechSynthesisUtterance(String(second));u.lang='ja-JP';u.rate=1.15;synth.cancel();synth.speak(u);}
+function numberToJapaneseReading(n){
+ n=Math.max(0,Math.floor(Number(n)||0));
+ if(n===0)return 'れい';
+ const ones=['','いち','に','さん','よん','ご','ろく','なな','はち','きゅう'];
+ const tens=['','じゅう','にじゅう','さんじゅう','よんじゅう','ごじゅう','ろくじゅう','ななじゅう','はちじゅう','きゅうじゅう'];
+ const hundreds=['','ひゃく','にひゃく','さんびゃく','よんひゃく','ごひゃく','ろっぴゃく','ななひゃく','はっぴゃく','きゅうひゃく'];
+ const thousands=['','せん','にせん','さんぜん','よんせん','ごせん','ろくせん','ななせん','はっせん','きゅうせん'];
+ if(n<10)return ones[n];
+ if(n<100){const t=Math.floor(n/10),o=n%10;return tens[t]+(o?ones[o]:'');}
+ if(n<1000){const h=Math.floor(n/100),r=n%100;return hundreds[h]+(r?numberToJapaneseReading(r):'');}
+ if(n<10000){const th=Math.floor(n/1000),r=n%1000;return thousands[th]+(r?numberToJapaneseReading(r):'');}
+ return String(n).split('').map(d=>d==='0'?'ぜろ':ones[Number(d)]).join('、');
+}
+function speakSecond(second){
+ if(!$('voiceEnabled').checked||!('speechSynthesis'in window))return;
+ const synth=window.speechSynthesis;
+ const u=new SpeechSynthesisUtterance(numberToJapaneseReading(second));
+ u.lang='ja-JP';
+ u.rate=1.0;
+ const voices=synth.getVoices();
+ const japaneseVoice=voices.find(v=>/^ja(-|_)/i.test(v.lang));
+ if(japaneseVoice)u.voice=japaneseVoice;
+ synth.cancel();
+ synth.speak(u);
+}
 function fireEventsAt(second){
  events.forEach((e,i)=>{if(e.offset===second&&!triggered.has(i)){triggered.add(i);$('event').textContent=`${e.name} 出征！`;$('display').classList.remove('launch');void $('display').offsetWidth;$('display').classList.add('launch');}});
  renderStatus();updateNext(second);
