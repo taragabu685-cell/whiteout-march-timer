@@ -21,7 +21,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 .radio-cell{width:44px;text-align:center}.radio-cell input{width:22px;height:22px;accent-color:var(--green)}
 .start-from{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.start-from input{width:110px}
 .ins-calc{margin-top:14px;padding:12px;border-radius:10px;background:#101a27;line-height:1.7}.ins-calc strong{color:var(--gold);font-size:1.15rem}
-.enemy-list{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.enemy-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#152030}.enemy-card.running{border-color:#39b987}.enemy-head{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center}.enemy-head .name-input,.enemy-head .time-input{min-width:0}.enemy-card .start-from{margin-top:10px}.enemy-card .start-from{gap:6px;flex-wrap:wrap}.enemy-card .start-from button{padding:7px 8px}.enemy-card .start-from input{flex:1 1 60px;width:auto;min-width:58px;max-width:90px;padding:8px}.enemy-card .start-from .hint{white-space:nowrap}.enemy-plan{margin-top:8px;line-height:1.6}.enemy-plan strong{color:var(--gold)}.enemy-status{margin-top:8px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;min-height:1.4em}.enemy-card .error{min-height:0;margin-top:4px}
+.enemy-list{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.enemy-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#152030}.enemy-card.running{border-color:#39b987}.enemy-head{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center}.enemy-head .name-input,.enemy-head .time-input{min-width:0}.enemy-card .start-from{margin-top:10px}.enemy-card .start-from{gap:6px;flex-wrap:wrap}.enemy-card .start-from button{padding:7px 8px}.enemy-card .start-from input{flex:1 1 60px;width:auto;min-width:58px;max-width:90px;padding:8px}.enemy-card .start-from .hint{white-space:nowrap;flex-basis:100%;font-size:.85rem}.enemy-plan{margin-top:8px;line-height:1.6}.enemy-plan strong{color:var(--gold)}.enemy-status{margin-top:8px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;min-height:1.4em}.enemy-card .error{min-height:0;margin-top:4px}
 .timer-panel.idle .timer,.timer-panel.idle .event:empty{display:none}.timer-panel.idle .remaining{font-size:1.05rem;color:var(--muted);font-weight:650}
 .ins-order{margin:14px auto 0;max-width:460px;text-align:left;display:grid;gap:6px}.ins-order:empty{display:none}.ins-order-title{color:var(--muted);font-size:.88rem;text-align:center}.order-row{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:9px;background:#101a27;font-variant-numeric:tabular-nums}.order-row.next{outline:2px solid var(--gold)}.order-row.landed{opacity:.6}.order-rank{font-weight:800;color:var(--gold);text-align:center}.order-name{font-weight:700;overflow-wrap:anywhere}.order-name small{display:block;font-weight:500;color:var(--muted);font-size:.8rem}.order-land{font-weight:700;color:var(--orange);text-align:right}.enemy-rank{display:inline-block;margin-bottom:8px;padding:2px 10px;border-radius:999px;background:#3a2f12;color:var(--gold);font-weight:800;font-size:.9rem}.enemy-rank:empty{display:none}
 .ins-sub{color:var(--muted);font-size:1.05rem;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -65,7 +65,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 </section>
 <section class="panel">
 <h2>敵の集結</h2>
-<p class="hint">ゲーム内の集結の残り時間が「合図」の表示になった瞬間に、その集結の「開始」を押してください。集結ごとに別々に動きます。</p>
+<p class="hint">ゲーム内の集結の残り時間が「集結残時間」の表示になった瞬間に、その集結の「開始」を押してください。集結ごとに別々に動きます。</p>
 <div id="insEnemyList" class="enemy-list"></div>
 <div class="controls"><button type="button" id="insAddBtn">＋ 敵の集結を追加</button><button type="button" id="insResetAllBtn">すべてリセット</button></div>
 </section>
@@ -333,10 +333,10 @@ function readEnemyPlan(t){
  const enemy=parseTime(t.timeInput.value);
  if(enemy===null)throw new Error('敵の行軍時間を「分:秒」で入力してください（例：0:30）。');
  const from=parseTime(t.fromInput.value);
- if(from===null||from<1)throw new Error('合図にする集結の残り時間を「分:秒」で入力してください（例：2:00）。');
+ if(from===null||from<1)throw new Error('集結残時間を「分:秒」で入力してください（例：2:00）。');
  const lead=my-enemy-gap;// 敵の行軍開始より何秒前に出発するか（マイナスなら開始後）
  const depart=from-lead;// 「開始」から何秒後に出発するか
- if(depart<0)throw new Error(`合図が遅すぎます。集結の残りが ${formatTime(lead)} 以上のときに開始してください。`);
+ if(depart<0)throw new Error(`集結残時間が短すぎます。集結の残りが ${formatTime(lead)} 以上のときに開始してください。`);
  return {name,enemy,my,gap,from,lead,depart,enemyLand:from+enemy,myLand:from+enemy+gap};
 }
 function describeLead(lead){
@@ -365,9 +365,9 @@ function addEnemyCard(name='',time='',start='2:00'){
  const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='small danger';delBtn.textContent='削除';
  head.append(nameInput,timeInput,delBtn);
  const fromRow=document.createElement('div');fromRow.className='start-from';
- const fromLabel=document.createElement('span');fromLabel.className='hint';fromLabel.textContent='合図';
+ const fromLabel=document.createElement('span');fromLabel.className='hint';fromLabel.textContent='集結残時間';
  const fromBtns=['2:00','1:00','0:30'].map(v=>{const b=document.createElement('button');b.type='button';b.className='small';b.textContent=v;return b;});
- const fromInput=document.createElement('input');fromInput.type='text';fromInput.className='time-input';fromInput.inputMode='decimal';fromInput.value=start;fromInput.setAttribute('aria-label','合図にする集結の残り時間');
+ const fromInput=document.createElement('input');fromInput.type='text';fromInput.className='time-input';fromInput.inputMode='decimal';fromInput.value=start;fromInput.setAttribute('aria-label','集結残時間（開始を押すときの集結の残り時間）');
  fromRow.append(fromLabel,...fromBtns,fromInput);
  const planEl=document.createElement('div');planEl.className='enemy-plan';
  const ctrl=document.createElement('div');ctrl.className='controls';
