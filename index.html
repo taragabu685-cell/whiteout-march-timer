@@ -138,8 +138,15 @@ function speakSecond(second){
  synth.cancel();
  synth.speak(u);
 }
+// 出征予定が現在の秒以下で、まだ出征していない人をまとめて出征させる。
+// 画面消灯や処理落ちで秒が飛んでも、出征の取りこぼしが起きないようにするため。
 function fireEventsAt(second){
- events.forEach((e,i)=>{if(e.offset===second&&!triggered.has(i)){triggered.add(i);$('event').textContent=`${e.name} 出征！`;$('display').classList.remove('launch');void $('display').offsetWidth;$('display').classList.add('launch');}});
+ const firedNames=[];let maxLate=0;
+ events.forEach((e,i)=>{if(e.offset<=second&&!triggered.has(i)){triggered.add(i);firedNames.push(e.name);maxLate=Math.max(maxLate,second-e.offset);}});
+ if(firedNames.length){
+  $('event').textContent=`${firedNames.join('・')} 出征！`+(maxLate>0?`（${maxLate}秒遅れて検出）`:'');
+  $('display').classList.remove('launch');void $('display').offsetWidth;$('display').classList.add('launch');
+ }
  renderStatus();updateNext(second);
 }
 function stopLoop(){if(rafId!==null)cancelAnimationFrame(rafId);rafId=null;}
