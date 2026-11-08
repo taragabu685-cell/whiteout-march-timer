@@ -144,17 +144,40 @@ function numberToJapaneseReading(n){
  if(n<10000){const th=Math.floor(n/1000),r=n%1000;return thousands[th]+(r?numberToJapaneseReading(r):'');}
  return String(n).split('').map(d=>d==='0'?'ぜろ':ones[Number(d)]).join('、');
 }
-function speakSecond(second){
- if(!$('voiceEnabled').checked||!('speechSynthesis'in window))return;
+// 日本語音声を確実に選ぶ。Android Chromeでは起動直後の getVoices() が空のことがあるため、
+// voiceschanged で一覧が届いたときにも取り直して保持しておく。
+let japaneseVoice=null;
+function findJapaneseVoice(){
+ if(!('speechSynthesis'in window))return null;
+ const voices=window.speechSynthesis.getVoices();
+ const found=voices.find(v=>/^ja(-|_)/i.test(v.lang));
+ if(found)japaneseVoice=found;
+ return japaneseVoice;
+}
+if('speechSynthesis'in window){
+ findJapaneseVoice();
+ if(window.speechSynthesis.addEventListener)window.speechSynthesis.addEventListener('voiceschanged',findJapaneseVoice);
+}
+function speakText(text){
  const synth=window.speechSynthesis;
- const u=new SpeechSynthesisUtterance(numberToJapaneseReading(second));
+ const u=new SpeechSynthesisUtterance(text);
  u.lang='ja-JP';
  u.rate=1.0;
- const voices=synth.getVoices();
- const japaneseVoice=voices.find(v=>/^ja(-|_)/i.test(v.lang));
- if(japaneseVoice)u.voice=japaneseVoice;
+ const voice=japaneseVoice||findJapaneseVoice();
+ if(voice)u.voice=voice;
  synth.cancel();
  synth.speak(u);
+}
+function speakSecond(second){
+ if(!$('voiceEnabled').checked||!('speechSynthesis'in window))return;
+ speakText(numberToJapaneseReading(second));
+}
+// 読み上げをONにしたとき、待機中なら一度だけテスト発話して音が出るか確認できるようにする。
+// （タイマー実行中は秒数の読み上げと重ならないようにテストしない）
+function onVoiceToggle(){
+ if(!$('voiceEnabled').checked)return;
+ if(!('speechSynthesis'in window)){$('error').textContent='このブラウザは音声読み上げに対応していません。';return;}
+ if(!isActive())speakText('よみあげ オン');
 }
 // 出征予定が現在の秒以下で、まだ出征していない人をまとめて出征させる。
 // 画面消灯や処理落ちで秒が飛んでも、出征の取りこぼしが起きないようにするため。
@@ -233,7 +256,7 @@ function loadData(){
  let data=null;try{data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');}catch(e){}
  if(Array.isArray(data)&&data.length){data.forEach(p=>addRow(String(p.name||''),String(p.time||'0:00')));}else{addRow('A','1:00');addRow('B','0:55');addRow('C','0:48');}
 }
-$('addBtn').addEventListener('click',()=>addRow());$('calcBtn').addEventListener('click',()=>{if(calculate())$('phase').textContent='計算完了。開始できます。';});$('startBtn').addEventListener('click',startTimer);$('resetBtn').addEventListener('click',resetTimer);$('copyBtn').addEventListener('click',copyTimings);
+$('addBtn').addEventListener('click',()=>addRow());$('calcBtn').addEventListener('click',()=>{if(calculate())$('phase').textContent='計算完了。開始できます。';});$('startBtn').addEventListener('click',startTimer);$('resetBtn').addEventListener('click',resetTimer);$('copyBtn').addEventListener('click',copyTimings);$('voiceEnabled').addEventListener('change',onVoiceToggle);
 loadData();calculate(false);resetTimer();
 })();
 </script>
