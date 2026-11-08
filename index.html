@@ -23,6 +23,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 .ins-calc{margin-top:14px;padding:12px;border-radius:10px;background:#101a27;line-height:1.7}.ins-calc strong{color:var(--gold);font-size:1.15rem}
 .enemy-list{display:grid;gap:12px}.enemy-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#152030}.enemy-card.running{border-color:#39b987}.enemy-head{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center}.enemy-head .name-input,.enemy-head .time-input{min-width:0}.enemy-card .start-from{margin-top:10px}.enemy-card .start-from input{width:90px}.enemy-plan{margin-top:8px;line-height:1.6}.enemy-plan strong{color:var(--gold)}.enemy-status{margin-top:8px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;min-height:1.4em}.enemy-card .error{min-height:0;margin-top:4px}
 .timer-panel.idle .timer,.timer-panel.idle .event:empty{display:none}.timer-panel.idle .remaining{font-size:1.05rem;color:var(--muted);font-weight:650}
+.ins-order{margin:14px auto 0;max-width:460px;text-align:left;display:grid;gap:6px}.ins-order:empty{display:none}.ins-order-title{color:var(--muted);font-size:.88rem;text-align:center}.order-row{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:9px;background:#101a27;font-variant-numeric:tabular-nums}.order-row.next{outline:2px solid var(--gold)}.order-row.landed{opacity:.6}.order-rank{font-weight:800;color:var(--gold);text-align:center}.order-name{font-weight:700;overflow-wrap:anywhere}.order-name small{display:block;font-weight:500;color:var(--muted);font-size:.8rem}.order-land{font-weight:700;color:var(--orange);text-align:right}.enemy-rank{display:inline-block;margin-bottom:8px;padding:2px 10px;border-radius:999px;background:#3a2f12;color:var(--gold);font-weight:800;font-size:.9rem}.enemy-rank:empty{display:none}
 .ins-sub{color:var(--muted);font-size:1.05rem;margin-top:8px;font-variant-numeric:tabular-nums}
 </style>
 </head>
@@ -58,6 +59,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 <div class="next-label" id="insNextLabel">自分の出発まで</div>
 <div id="insRemaining" class="remaining">---</div>
 <div id="insSub" class="ins-sub"></div>
+<div id="insOrder" class="ins-order" aria-label="敵の着弾順"></div>
 <div id="insBgNotice" class="bg-notice" role="status"></div>
 <div id="insWakeStatus" class="hint"></div>
 </section>
@@ -373,10 +375,11 @@ function addEnemyCard(name='',time='',start='2:00'){
  const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='リセット';
  ctrl.append(startBtn,resetBtn);
  const statusEl=document.createElement('div');statusEl.className='enemy-status';
+ const rankEl=document.createElement('div');rankEl.className='enemy-rank';
  const errorEl=document.createElement('div');errorEl.className='error';
- card.append(head,fromRow,planEl,ctrl,statusEl,errorEl);
+ card.append(rankEl,head,fromRow,planEl,ctrl,statusEl,errorEl);
  $('insEnemyList').append(card);
- const t={card,nameInput,timeInput,fromInput,fromBtns,delBtn,startBtn,planEl,statusEl,errorEl,running:false,finished:false,plan:null,start:0,lastSec:null,departed:false};
+ const t={card,nameInput,timeInput,fromInput,fromBtns,delBtn,startBtn,planEl,statusEl,errorEl,rankEl,running:false,finished:false,plan:null,start:0,lastSec:null,departed:false};
  insTimers.push(t);
  [nameInput,timeInput,fromInput].forEach(el=>el.addEventListener('input',onInsertInput));
  [timeInput,fromInput].forEach(el=>el.addEventListener('blur',()=>normalizeInsertTime(el)));
@@ -440,7 +443,7 @@ function renderInsertFocus(now=performance.now()){
  $('insPanel').classList.toggle('idle',!running.length);
  if(!running.length){
   $('insPhase').textContent='次の出発';$('insDisplay').className='timer countdown';$('insDisplay').textContent='--';
-  $('insNextLabel').textContent='待機中';$('insRemaining').textContent='敵の集結ごとに「開始」を押してください';$('insSub').textContent='';insSpoken=null;
+  $('insNextLabel').textContent='待機中';$('insRemaining').textContent='敵の集結ごとに「開始」を押してください';$('insSub').textContent='';insSpoken=null;renderLandingOrder([],now,null);
   if(now-insLastEventAt>3000)$('insEvent').textContent='';
   return;
  }
@@ -458,7 +461,36 @@ function renderInsertFocus(now=performance.now()){
   $('insPhase').textContent=`${p.name}：出発済み ✓`;$('insDisplay').className='timer';$('insDisplay').textContent=String(Math.max(0,p.myLand-sec));
   $('insNextLabel').textContent='自軍の着弾まで';$('insRemaining').textContent=`あと ${Math.max(0,p.myLand-sec)} 秒`;
  }
- $('insSub').textContent=others>0?`ほかに実行中の集結：${others}件（下の一覧で確認できます）`:'';
+ $('insSub').textContent=others>0?`ほかに実行中の集結：${others}件`:'';
+ renderLandingOrder(running,now,pending.length?pending[0]:null);
+}
+// 敵の着弾順：開始済みの集結を、敵が着弾する時刻の早い順に並べて表示する。
+// 開始時刻と行軍時間から計算するので、開始した順番と着弾する順番が違っても正しく並ぶ。
+// 各集結のカードにも「着弾順 〇番目」を表示する。
+let insOrderKey='';
+function renderLandingOrder(running,now,nextTimer){
+ const list=running.slice().sort((a,b)=>(a.start+a.plan.enemyLand*1000)-(b.start+b.plan.enemyLand*1000));
+ const rows=list.map((t,i)=>{
+  const p=t.plan;const sec=Math.floor((now-t.start)/1000);const land=p.enemyLand-sec;
+  const prev=i>0?list[i-1]:null;
+  const gapSec=prev?Math.round(((t.start+p.enemyLand*1000)-(prev.start+prev.plan.enemyLand*1000))/1000):null;
+  const mine=t.departed?(sec<p.myLand?'出発済み ✓':'差し込み完了'):`出発まで あと ${Math.max(0,p.depart-sec)} 秒`;
+  return {t,rank:i+1,name:p.name,land,landed:land<=0,gapSec,mine,next:t===nextTimer};
+ });
+ const key=rows.map(r=>[r.rank,r.name,r.land,r.gapSec,r.mine,r.next].join('|')).join(';');
+ insTimers.forEach(t=>{const r=rows.find(x=>x.t===t);const text=r?`着弾順 ${r.rank}番目`:'';if(t.rankEl.textContent!==text)t.rankEl.textContent=text;});
+ if(key===insOrderKey)return;insOrderKey=key;
+ const box=$('insOrder');box.replaceChildren();
+ if(!rows.length)return;
+ const title=document.createElement('div');title.className='ins-order-title';title.textContent='敵の着弾順';box.append(title);
+ rows.forEach(r=>{
+  const row=document.createElement('div');row.className='order-row'+(r.next?' next':'')+(r.landed?' landed':'');
+  const rank=document.createElement('span');rank.className='order-rank';rank.textContent=String(r.rank);
+  const name=document.createElement('span');name.className='order-name';name.textContent=r.name;
+  const sub=document.createElement('small');sub.textContent=(r.gapSec!==null?`前の着弾の ${r.gapSec} 秒後・`:'')+r.mine;name.append(sub);
+  const land=document.createElement('span');land.className='order-land';land.textContent=r.landed?'着弾済み':`着弾まで ${r.land} 秒`;
+  row.append(rank,name,land);box.append(row);
+ });
 }
 function loadInsert(){
  let d=null;try{d=JSON.parse(localStorage.getItem(INSERT_KEY)||'null');}catch(e){}
