@@ -14,7 +14,7 @@ h1{font-size:clamp(1.35rem,4vw,2rem);text-align:center;margin:6px 0 8px}.subtitl
 button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:disabled{opacity:.45;cursor:not-allowed;filter:none}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
 .timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}.timer-panel.panel-flash{animation:panelFlash .3s ease-in-out 3}@keyframes panelFlash{50%{background:#1f8f5f;border-color:var(--green);box-shadow:0 0 0 4px #39f59b55}}.timer-panel.panel-flash .event{color:#fff}.bg-notice{color:var(--orange);font-size:.95rem;font-weight:650;line-height:1.5;margin-top:10px}.bg-notice:empty{display:none}
 .event{font-size:clamp(1.7rem,6vw,3.4rem);font-weight:800;color:var(--green);min-height:1.35em}.next-label{color:var(--muted);margin-top:18px}.next-player{font-size:clamp(1.6rem,5vw,2.5rem);font-weight:800;color:var(--gold);overflow-wrap:anywhere}.remaining{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}.hint{color:var(--muted);font-size:.9rem;line-height:1.6}.results-list,.status-list{display:grid;gap:8px}.copy-note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:8px 0 0}.copy-area{width:100%;min-height:110px;resize:vertical;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit;line-height:1.5}.result-row,.status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;background:#101a27}.result-row strong,.status-row strong{overflow-wrap:anywhere}.done{color:var(--green)}.error{color:var(--red);min-height:1.3em;margin-top:8px}.empty{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
-@media(min-width:700px){.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.columns .panel{margin:0}.timer-panel{padding:20px}}
+@media(min-width:700px){.timer-panel{padding:20px}}
 </style>
 </head>
 <body>
@@ -37,11 +37,7 @@ button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;
 <div id="bgNotice" class="bg-notice" role="status"></div>
 <div id="wakeStatus" class="hint"></div>
 </section>
-<div class="columns">
-<section class="panel"><h2>出征タイミング</h2><div id="results" class="results-list"><div class="empty">プレイヤーを入力して「計算」を押してください。</div></div><div class="controls"><button type="button" id="copyBtn">出征タイミングをコピー</button></div><p id="copyNote" class="copy-note" aria-live="polite">チャットに貼り付ける一覧をまとめてコピーできます。</p><textarea id="copyText" class="copy-area" readonly aria-label="チャット貼り付け用の出征タイミング" placeholder="計算すると、ここにチャット用テキストが表示されます"></textarea></section>
-<section class="panel"><h2>進行状況</h2><div id="status" class="status-list"><div class="empty">まだ開始していません。</div></div></section>
-</div>
-<footer>入力内容はこのブラウザ内に保存されます。他の人の入力とは共有されません。</footer>
+<section class="panel"><h2>出征タイミング・進行状況</h2><div id="results" class="results-list"><div class="empty">プレイヤーを入力して「計算」を押してください。</div></div><div class="controls"><button type="button" id="copyBtn">出征タイミングをコピー</button></div><p id="copyNote" class="copy-note" aria-live="polite">チャットに貼り付ける一覧をまとめてコピーできます。</p><textarea id="copyText" class="copy-area" readonly aria-label="チャット貼り付け用の出征タイミング" placeholder="計算すると、ここにチャット用テキストが表示されます"></textarea></section><footer>入力内容はこのブラウザ内に保存されます。他の人の入力とは共有されません。</footer>
 <script>
 (() => {
 'use strict';
@@ -102,8 +98,9 @@ function calculate(showError=true){
   $('error').textContent='';renderResults();renderStatus();updateNext(0);return true;
  }catch(e){if(showError)$('error').textContent=e.message;return false;}
 }
+// 出征タイミングと進行状況は1つの一覧にまとめて表示する（一覧の描画は renderStatus が担当）。
 function renderResults(){
- $('results').replaceChildren();events.forEach(e=>{const row=document.createElement('div');row.className='result-row';const n=document.createElement('strong');n.textContent=e.name;const t=document.createElement('span');t.textContent=`${e.offset}秒後（行軍 ${formatTime(e.time)}）`;row.append(n,t);$('results').append(row);});
+ renderStatus();
  const lines=['【出征タイミング】',...events.map(e=>`${e.name}：${e.offset}秒`)];
  $('copyText').value=lines.join('\n');
  $('copyNote').textContent='チャットに貼り付ける一覧をまとめてコピーできます。';
@@ -122,8 +119,9 @@ async function copyTimings(){
  }
 }
 function renderStatus(){
- $('status').replaceChildren();if(!events.length){$('status').textContent='まだ開始していません。';return;}
- events.forEach((e,i)=>{const row=document.createElement('div');row.className='status-row'+(triggered.has(i)?' done':'');const n=document.createElement('span');n.textContent=(triggered.has(i)?'✓ ':'□ ')+e.name;const t=document.createElement('strong');t.textContent=`${e.offset}秒`;row.append(n,t);$('status').append(row);});
+ if(!events.length)return;
+ $('results').replaceChildren();
+ events.forEach((e,i)=>{const done=triggered.has(i);const row=document.createElement('div');row.className='result-row'+(done?' done':'');const n=document.createElement('strong');n.textContent=(done?'✓ ':'□ ')+e.name;const t=document.createElement('span');t.textContent=`${e.offset}秒後（行軍 ${formatTime(e.time)}）`;row.append(n,t);$('results').append(row);});
 }
 function updateNext(elapsed){
  const nextIndex=events.findIndex((e,i)=>!triggered.has(i));
