@@ -11,7 +11,7 @@
 h1{font-size:clamp(1.35rem,4vw,2rem);text-align:center;margin:6px 0 8px}.subtitle{text-align:center;color:var(--muted);margin:0 0 20px;font-size:.95rem}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}h2{font-size:1.1rem;margin:0 0 12px}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:300px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:.86rem;color:var(--muted)}input[type=text],input[type=number]{width:100%;min-width:0;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit}input:focus{outline:2px solid #6aa9ff;outline-offset:1px}.name-input{min-width:90px}.time-input{min-width:100px}
-button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
+button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:disabled{opacity:.45;cursor:not-allowed;filter:none}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
 .timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}
 .event{font-size:clamp(1.7rem,6vw,3.4rem);font-weight:800;color:var(--green);min-height:1.35em}.next-label{color:var(--muted);margin-top:18px}.next-player{font-size:clamp(1.6rem,5vw,2.5rem);font-weight:800;color:var(--gold);overflow-wrap:anywhere}.remaining{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}.hint{color:var(--muted);font-size:.9rem;line-height:1.6}.results-list,.status-list{display:grid;gap:8px}.copy-note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:8px 0 0}.copy-area{width:100%;min-height:110px;resize:vertical;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit;line-height:1.5}.result-row,.status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;background:#101a27}.result-row strong,.status-row strong{overflow-wrap:anywhere}.done{color:var(--green)}.error{color:var(--red);min-height:1.3em;margin-top:8px}.empty{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
 @media(min-width:700px){.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.columns .panel{margin:0}.timer-panel{padding:20px}}
@@ -186,10 +186,16 @@ function releaseWakeLock(){
 }
 // 別アプリに切り替えると Wake Lock はブラウザにより自動解除されるので、戻ったときに取り直す。
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isActive()&&!wakeLock)requestWakeLock();});
+// 実行中は「開始」「計算」を押せなくする（誤タップでタイマーが最初からになる・出征状況がずれるのを防ぐ）。
+// 途中で止めたいときは「リセット」を使う。
+function setRunningUI(active){
+ $('startBtn').disabled=active;$('calcBtn').disabled=active;
+ $('startBtn').textContent=active?'実行中…':'▶ 開始';
+}
 function startTimer(){
- if(mode!=='idle'&&mode!=='finished'){stopLoop();}
+ if(isActive())return;
  if(!calculate())return;
- triggered=new Set();mode='countdown';countdownStart=performance.now();lastShown=null;$('event').textContent='';$('phase').textContent='準備カウントダウン';$('display').className='timer countdown';renderStatus();tick();requestWakeLock();
+ triggered=new Set();mode='countdown';countdownStart=performance.now();lastShown=null;$('event').textContent='';$('phase').textContent='準備カウントダウン';$('display').className='timer countdown';renderStatus();setRunningUI(true);tick();requestWakeLock();
 }
 function tick(){
  if(mode==='countdown'){
@@ -200,11 +206,11 @@ function tick(){
  }else if(mode==='running'){
   const elapsed=(performance.now()-runStart)/1000;const second=Math.floor(elapsed);
   if(second!==lastShown){$('display').textContent=String(second);lastShown=second;speakSecond(second);$('display').classList.remove('launch');if(second>0)fireEventsAt(second);else updateNext(second);}
-  if(triggered.size===events.length){mode='finished';$('phase').textContent='すべての出征が完了しました';$('nextPlayer').textContent='全員出征完了';$('remainingSeconds').textContent='';stopLoop();releaseWakeLock();return;}
+  if(triggered.size===events.length){mode='finished';$('phase').textContent='すべての出征が完了しました';$('nextPlayer').textContent='全員出征完了';$('remainingSeconds').textContent='';stopLoop();releaseWakeLock();setRunningUI(false);return;}
  }
  rafId=requestAnimationFrame(tick);
 }
-function resetTimer(){stopLoop();releaseWakeLock();mode='idle';triggered=new Set();lastShown=null;$('display').textContent='6';$('display').className='timer countdown';$('phase').textContent='開始すると6秒前からカウントダウンします';$('event').textContent='';renderStatus();updateNext(0);}
+function resetTimer(){stopLoop();releaseWakeLock();mode='idle';setRunningUI(false);triggered=new Set();lastShown=null;$('display').textContent='6';$('display').className='timer countdown';$('phase').textContent='開始すると6秒前からカウントダウンします';$('event').textContent='';renderStatus();updateNext(0);}
 function loadData(){
  let data=null;try{data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');}catch(e){}
  if(Array.isArray(data)&&data.length){data.forEach(p=>addRow(String(p.name||''),String(p.time||'0:00')));}else{addRow('A','1:00');addRow('B','0:55');addRow('C','0:48');}
