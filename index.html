@@ -12,7 +12,7 @@ h1{font-size:clamp(1.35rem,4vw,2rem);text-align:center;margin:6px 0 8px}.subtitl
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}h2{font-size:1.1rem;margin:0 0 12px}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:300px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:.86rem;color:var(--muted)}input[type=text],input[type=number]{width:100%;min-width:0;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit}input:focus{outline:2px solid #6aa9ff;outline-offset:1px}.name-input{min-width:90px}.time-input{min-width:100px}
 button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:disabled{opacity:.45;cursor:not-allowed;filter:none}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
-.timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}.timer-panel.panel-flash{animation:panelFlash .3s ease-in-out 3}@keyframes panelFlash{50%{background:#1f8f5f;border-color:var(--green);box-shadow:0 0 0 4px #39f59b55}}.timer-panel.panel-flash .event{color:#fff}.bg-notice{color:var(--orange);font-size:.95rem;font-weight:650;line-height:1.5;margin-top:10px}.bg-notice:empty{display:none}
+.timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}.panel-flash{animation:panelFlash .3s ease-in-out 3}@keyframes panelFlash{50%{background:#1f8f5f;border-color:var(--green);box-shadow:0 0 0 4px #39f59b55}}.timer-panel.panel-flash .event{color:#fff}.bg-notice{color:var(--orange);font-size:.95rem;font-weight:650;line-height:1.5;margin-top:10px}.bg-notice:empty{display:none}
 .event{font-size:clamp(1.7rem,6vw,3.4rem);font-weight:800;color:var(--green);min-height:1.35em}.next-label{color:var(--muted);margin-top:18px}.next-player{font-size:clamp(1.6rem,5vw,2.5rem);font-weight:800;color:var(--gold);overflow-wrap:anywhere}.remaining{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}.hint{color:var(--muted);font-size:.9rem;line-height:1.6}.results-list,.status-list{display:grid;gap:8px}.copy-note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:8px 0 0}.copy-area{width:100%;min-height:110px;resize:vertical;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit;line-height:1.5}.result-row,.status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;background:#101a27}.result-row strong,.status-row strong{overflow-wrap:anywhere}.done{color:var(--green)}.error{color:var(--red);min-height:1.3em;margin-top:8px}.empty{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
 @media(min-width:700px){.timer-panel{padding:20px}}
 [hidden]{display:none!important}td button{white-space:nowrap}
@@ -21,6 +21,8 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 .radio-cell{width:44px;text-align:center}.radio-cell input{width:22px;height:22px;accent-color:var(--green)}
 .start-from{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.start-from input{width:110px}
 .ins-calc{margin-top:14px;padding:12px;border-radius:10px;background:#101a27;line-height:1.7}.ins-calc strong{color:var(--gold);font-size:1.15rem}
+.enemy-list{display:grid;gap:12px}.enemy-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#152030}.enemy-card.running{border-color:#39b987}.enemy-head{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center}.enemy-head .name-input,.enemy-head .time-input{min-width:0}.enemy-card .start-from{margin-top:10px}.enemy-card .start-from input{width:90px}.enemy-plan{margin-top:8px;line-height:1.6}.enemy-plan strong{color:var(--gold)}.enemy-status{margin-top:8px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;min-height:1.4em}.enemy-card .error{min-height:0;margin-top:4px}
+.timer-panel.idle .timer,.timer-panel.idle .event:empty{display:none}.timer-panel.idle .remaining{font-size:1.05rem;color:var(--muted);font-weight:650}
 .ins-sub{color:var(--muted);font-size:1.05rem;margin-top:8px;font-variant-numeric:tabular-nums}
 </style>
 </head>
@@ -49,32 +51,31 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 <section class="panel"><h2>出征タイミング・進行状況</h2><div id="results" class="results-list"><div class="empty">プレイヤーを入力して「計算」を押してください。</div></div><div class="controls"><button type="button" id="copyBtn">出征タイミングをコピー</button></div><p id="copyNote" class="copy-note" aria-live="polite">チャットに貼り付ける一覧をまとめてコピーできます。</p><textarea id="copyText" class="copy-area" readonly aria-label="チャット貼り付け用の出征タイミング" placeholder="計算すると、ここにチャット用テキストが表示されます"></textarea></section>
 </div>
 <div id="tab-insert" class="tab-page" hidden>
-<section class="panel">
-<h2>差し込み設定</h2>
-<p class="hint">自陣に連続で集結が来たとき、敵の集結が着弾した直後に自軍の兵を差し込んで補充するための出発タイミングを計算します。</p>
-<div class="form-grid">
-<label class="field">自分の行軍時間<input type="text" id="insMyTime" class="time-input" inputmode="decimal" placeholder="0:35"></label>
-<label class="field">敵の着弾から何秒後に着弾<input type="number" id="insGap" inputmode="numeric" min="0" max="30" value="1"></label>
-</div>
-<h3>敵の集結（差し込む集結を選択）</h3>
-<div class="table-wrap"><table id="insEnemyTable"><thead><tr><th class="radio-cell">対象</th><th>敵の名前</th><th>行軍時間</th><th>操作</th></tr></thead><tbody></tbody></table></div>
-<div class="controls"><button type="button" id="insAddBtn">＋ 敵を追加</button></div>
-<h3>開始の合図（ゲーム内の集結の残り時間）</h3>
-<div class="start-from"><button type="button" class="small" data-start-from="2:00">2:00</button><button type="button" class="small" data-start-from="1:00">1:00</button><input type="text" id="insStartFrom" class="time-input" inputmode="decimal" value="2:00" aria-label="開始の合図にする集結の残り時間"></div>
-<p class="hint">ゲーム内の集結の残り時間がこの表示になった瞬間に「開始」を押してください。</p>
-<div id="insCalc" class="ins-calc"></div>
-<div class="controls"><button type="button" class="primary" id="insStartBtn">▶ 開始</button><button type="button" id="insResetBtn">リセット</button><label class="voice"><input type="checkbox" id="insVoice">秒数を読み上げ</label></div>
-<div id="insError" class="error" role="alert"></div>
-</section>
 <section class="panel timer-panel" id="insPanel" aria-live="polite">
-<div class="phase" id="insPhase">敵の集結 残り</div>
-<div id="insDisplay" class="timer countdown">2:00</div>
+<div class="phase" id="insPhase">次の出発</div>
+<div id="insDisplay" class="timer countdown">--</div>
 <div id="insEvent" class="event"></div>
 <div class="next-label" id="insNextLabel">自分の出発まで</div>
 <div id="insRemaining" class="remaining">---</div>
 <div id="insSub" class="ins-sub"></div>
 <div id="insBgNotice" class="bg-notice" role="status"></div>
 <div id="insWakeStatus" class="hint"></div>
+</section>
+<section class="panel">
+<h2>敵の集結</h2>
+<p class="hint">ゲーム内の集結の残り時間が「合図」の表示になった瞬間に、その集結の「開始」を押してください。集結ごとに別々に動きます。</p>
+<div id="insEnemyList" class="enemy-list"></div>
+<div class="controls"><button type="button" id="insAddBtn">＋ 敵の集結を追加</button><button type="button" id="insResetAllBtn">すべてリセット</button></div>
+</section>
+<section class="panel">
+<h2>差し込み設定</h2>
+<p class="hint">自陣に連続で集結が来たとき、敵の集結が着弾した直後に自軍の兵を差し込んで補充するための出発タイミングを計算します。敵の集結ごとに別々のタイマーを動かせます。</p>
+<div class="form-grid">
+<label class="field">自分の行軍時間<input type="text" id="insMyTime" class="time-input" inputmode="decimal" placeholder="0:35"></label>
+<label class="field">敵の着弾から何秒後に着弾<input type="number" id="insGap" inputmode="numeric" min="0" max="30" value="1"></label>
+</div>
+<div class="controls"><label class="voice"><input type="checkbox" id="insVoice">秒数を読み上げ（次に出発する集結のみ）</label></div>
+<div id="insError" class="error" role="alert"></div>
 </section>
 </div>
 <footer>入力内容はこのブラウザ内に保存されます。他の人の入力とは共有されません。</footer>
@@ -84,7 +85,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 const STORAGE_KEY='whiteoutMarchTimer_v2';
 const $=id=>document.getElementById(id);
 let events=[];let triggered=new Set();let mode='idle';let countdownStart=0;let runStart=0;let rafId=null;let lastShown=null;let previousEventText='';
-let insMode='idle';// 差し込みタブのタイマー状態（idle / running / finished）
+let insTimers=[];// 差し込みタブ：敵の集結ごとのタイマー
 // 行軍時間の入力を秒に変換する。従来の「分:秒」に加えて、スマホで入力しやすい形も受け付ける。
 //  全角の数字・コロン（１：２３）、区切りにピリオド（1.23）、区切りなしの数字（123→1:23、45→0:45）
 function parseTime(value){
@@ -241,7 +242,7 @@ function stopLoop(){if(rafId!==null)cancelAnimationFrame(rafId);rafId=null;}
 // タイマーの計時には関与しないため、使えない端末でもタイマーはそのまま動く。
 let wakeLock=null;
 // 同時着弾タブ・差し込みタブのどちらかのタイマーが動いていれば実行中とみなす
-function isActive(){return mode==='countdown'||mode==='running'||insMode==='running';}
+function isActive(){return mode==='countdown'||mode==='running'||insAnyRunning();}
 function setWakeText(text){$('wakeStatus').textContent=text;$('insWakeStatus').textContent=text;}
 async function requestWakeLock(){
  if(!('wakeLock'in navigator)){setWakeText('この端末は画面消灯防止に未対応です（画面の自動消灯にご注意ください）');return;}
@@ -267,7 +268,7 @@ document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='hidden'){hiddenAt=isActive()?performance.now():null;return;}
  if(hiddenAt===null)return;
  const away=Math.round((performance.now()-hiddenAt)/1000);hiddenAt=null;
- if(away>=1){const msg=`別の画面に切り替えていた ${away} 秒間は、表示と読み上げが止まっていました。`;if(mode==='countdown'||mode==='running')$('bgNotice').textContent=msg;if(insMode==='running')$('insBgNotice').textContent=msg;}
+ if(away>=1){const msg=`別の画面に切り替えていた ${away} 秒間は、表示と読み上げが止まっていました。`;if(mode==='countdown'||mode==='running')$('bgNotice').textContent=msg;if(insAnyRunning())$('insBgNotice').textContent=msg;}
 });
 // 実行中は「開始」「計算」を押せなくする（誤タップでタイマーが最初からになる・出征状況がずれるのを防ぐ）。
 // 途中で止めたいときは「リセット」を使う。
@@ -305,115 +306,175 @@ $('addBtn').addEventListener('click',()=>addRow());$('calcBtn').addEventListener
 // 「開始」を押した瞬間を0秒とし、ゲーム内の集結残り＝R秒とすると
 //   自軍の出発 = R + 敵の行軍時間 + 指定秒数 − 自分の行軍時間（開始から何秒後か）
 // 例：敵30秒、自分35秒、指定1秒 → 敵の行軍開始の4秒前に出発。
+// 敵の集結ごとに別々のタイマー（開始時刻）を持ち、1つの描画ループでまとめて更新する。
 // 計時は同時着弾タブと同じく performance.now() 基準で、秒が飛んでも出発を取りこぼさない。
 const INSERT_KEY='whiteoutMarchTimer_insert_v1';
-let insPlan=null;let insStart=0;let insRaf=null;let insLastSec=null;let insDeparted=false;
+let insRaf=null;let insSpoken=null;let insLastEventAt=0;
+function insAnyRunning(){return insTimers.some(t=>t.running);}
 function saveInsert(){
- const enemies=[...document.querySelectorAll('#insEnemyTable tbody tr')].map(r=>({name:r.querySelector('.name-input').value,time:r.querySelector('.time-input').value}));
- const rows=[...document.querySelectorAll('#insEnemyTable tbody tr')];
- const target=rows.findIndex(r=>r.querySelector('input[type=radio]').checked);
- const data={my:$('insMyTime').value,gap:$('insGap').value,start:$('insStartFrom').value,enemies,target};
- try{localStorage.setItem(INSERT_KEY,JSON.stringify(data));}catch(e){}
+ const enemies=insTimers.map(t=>({name:t.nameInput.value,time:t.timeInput.value,start:t.fromInput.value}));
+ try{localStorage.setItem(INSERT_KEY,JSON.stringify({my:$('insMyTime').value,gap:$('insGap').value,enemies}));}catch(e){}
 }
-function onInsertInput(){saveInsert();if(insMode!=='running')renderInsertCalc();}
+function onInsertInput(){saveInsert();insTimers.forEach(t=>{if(!t.running)renderEnemyPlan(t);});}
 function normalizeInsertTime(input){const sec=parseTime(input.value);if(sec!==null&&input.value!==formatTime(sec)){input.value=formatTime(sec);onInsertInput();}}
-function addEnemyRow(name='',time='',checked=false){
- const tr=document.createElement('tr');
- const td0=document.createElement('td');td0.className='radio-cell';const radio=document.createElement('input');radio.type='radio';radio.name='insTarget';radio.checked=checked;radio.setAttribute('aria-label','この集結に差し込む');radio.addEventListener('change',onInsertInput);td0.append(radio);
- const td1=document.createElement('td');const n=document.createElement('input');n.type='text';n.className='name-input';n.maxLength=30;n.placeholder='敵の名前';n.value=name;n.setAttribute('aria-label','敵の名前');n.addEventListener('input',onInsertInput);td1.append(n);
- const td2=document.createElement('td');const t=document.createElement('input');t.type='text';t.className='time-input';t.inputMode='decimal';t.placeholder='0:30';t.value=time;t.setAttribute('aria-label','敵の行軍時間 分:秒');t.addEventListener('input',onInsertInput);t.addEventListener('blur',()=>normalizeInsertTime(t));td2.append(t);
- const td3=document.createElement('td');const del=document.createElement('button');del.type='button';del.className='small danger';del.textContent='削除';
- del.addEventListener('click',()=>{const wasChecked=radio.checked;tr.remove();if(wasChecked){const first=document.querySelector('#insEnemyTable tbody input[type=radio]');if(first)first.checked=true;}onInsertInput();});td3.append(del);
- tr.append(td0,td1,td2,td3);$('insEnemyTable').tBodies[0].append(tr);
- if(!document.querySelector('#insEnemyTable tbody input[type=radio]:checked'))radio.checked=true;
-}
-// 入力から差し込みの計画を作る。問題があれば Error を投げる。
-function readInsertPlan(){
+function readCommon(){
  const my=parseTime($('insMyTime').value);
  if(my===null)throw new Error('自分の行軍時間を「分:秒」で入力してください（例：0:35）。');
  const gapRaw=String($('insGap').value).trim();const gap=gapRaw===''?1:Number(gapRaw);
  if(!Number.isInteger(gap)||gap<0||gap>30)throw new Error('「敵の着弾から何秒後」は0〜30の整数で入力してください。');
- const row=[...document.querySelectorAll('#insEnemyTable tbody tr')].find(r=>r.querySelector('input[type=radio]').checked);
- if(!row)throw new Error('差し込む敵の集結を追加して選択してください。');
- const name=row.querySelector('.name-input').value.trim()||'敵';
- const enemy=parseTime(row.querySelector('.time-input').value);
- if(enemy===null)throw new Error(`${name}：敵の行軍時間を「分:秒」で入力してください（例：0:30）。`);
- const from=parseTime($('insStartFrom').value);
- if(from===null||from<1)throw new Error('開始の合図にする集結の残り時間を「分:秒」で入力してください（例：2:00）。');
+ return {my,gap};
+}
+// 1つの敵の集結について差し込みの計画を作る。問題があれば Error を投げる。
+function readEnemyPlan(t){
+ const {my,gap}=readCommon();
+ const name=t.nameInput.value.trim()||'敵';
+ const enemy=parseTime(t.timeInput.value);
+ if(enemy===null)throw new Error('敵の行軍時間を「分:秒」で入力してください（例：0:30）。');
+ const from=parseTime(t.fromInput.value);
+ if(from===null||from<1)throw new Error('合図にする集結の残り時間を「分:秒」で入力してください（例：2:00）。');
  const lead=my-enemy-gap;// 敵の行軍開始より何秒前に出発するか（マイナスなら開始後）
  const depart=from-lead;// 「開始」から何秒後に出発するか
- if(depart<0)throw new Error(`開始の合図が遅すぎます。集結の残りが ${formatTime(lead)} 以上のときに開始してください。`);
+ if(depart<0)throw new Error(`合図が遅すぎます。集結の残りが ${formatTime(lead)} 以上のときに開始してください。`);
  return {name,enemy,my,gap,from,lead,depart,enemyLand:from+enemy,myLand:from+enemy+gap};
 }
 function describeLead(lead){
- if(lead>0)return `敵の行軍開始の <strong>${lead}秒前</strong> に出発（ゲーム内の集結残り <strong>${formatTime(lead)}</strong> で出発）`;
- if(lead===0)return '敵の行軍開始と <strong>同時</strong> に出発（集結残り <strong>0:00</strong> で出発）';
+ if(lead>0)return `集結残り <strong>${formatTime(lead)}</strong> で出発（敵の行軍開始の${lead}秒前）`;
+ if(lead===0)return '集結残り <strong>0:00</strong> で出発（敵の行軍開始と同時）';
  return `敵の行軍開始の <strong>${-lead}秒後</strong> に出発`;
 }
-function renderInsertCalc(){
+function renderEnemyPlan(t){
  try{
-  const p=readInsertPlan();
-  $('insError').textContent='';
-  $('insCalc').innerHTML=`${escapeHtml(p.name)}（行軍 ${formatTime(p.enemy)}）／自分（行軍 ${formatTime(p.my)}）<br>${describeLead(p.lead)}<br><span class="hint">敵の着弾から ${p.gap} 秒後に自軍が着弾します。</span>`;
-  if(insMode!=='running'){$('insDisplay').textContent=formatTime(p.from);$('insRemaining').textContent=`開始から ${p.depart} 秒後`;$('insSub').textContent='';}
+  const p=readEnemyPlan(t);t.errorEl.textContent='';$('insError').textContent='';
+  t.planEl.innerHTML=describeLead(p.lead);
+  if(!t.finished)t.statusEl.textContent=`開始から ${p.depart} 秒後に出発`;
   return p;
- }catch(e){$('insCalc').textContent='';$('insError').textContent=e.message;return null;}
+ }catch(e){t.planEl.textContent='';t.errorEl.textContent=e.message;return null;}
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function setInsertRunningUI(active){$('insStartBtn').disabled=active;$('insStartBtn').textContent=active?'実行中…':'▶ 開始';}
-function startInsert(){
- if(insMode==='running')return;
- const p=renderInsertCalc();if(!p)return;
- insPlan=p;insMode='running';insStart=performance.now();insLastSec=null;insDeparted=false;
- $('insEvent').textContent='';$('insBgNotice').textContent='';$('insDisplay').className='timer countdown';
- setInsertRunningUI(true);insTick();requestWakeLock();
+function setEnemyRunningUI(t,active){
+ t.startBtn.disabled=active;t.startBtn.textContent=active?'実行中…':'▶ 開始';
+ [t.nameInput,t.timeInput,t.fromInput,t.delBtn,...t.fromBtns].forEach(el=>el.disabled=active);
+ t.card.classList.toggle('running',active);
+}
+function addEnemyCard(name='',time='',start='2:00'){
+ const card=document.createElement('div');card.className='enemy-card';
+ const head=document.createElement('div');head.className='enemy-head';
+ const nameInput=document.createElement('input');nameInput.type='text';nameInput.className='name-input';nameInput.maxLength=30;nameInput.placeholder='敵の名前';nameInput.value=name;nameInput.setAttribute('aria-label','敵の名前');
+ const timeInput=document.createElement('input');timeInput.type='text';timeInput.className='time-input';timeInput.inputMode='decimal';timeInput.placeholder='行軍 0:30';timeInput.value=time;timeInput.setAttribute('aria-label','敵の行軍時間 分:秒');
+ const delBtn=document.createElement('button');delBtn.type='button';delBtn.className='small danger';delBtn.textContent='削除';
+ head.append(nameInput,timeInput,delBtn);
+ const fromRow=document.createElement('div');fromRow.className='start-from';
+ const fromLabel=document.createElement('span');fromLabel.className='hint';fromLabel.textContent='合図';
+ const fromBtns=['2:00','1:00'].map(v=>{const b=document.createElement('button');b.type='button';b.className='small';b.textContent=v;return b;});
+ const fromInput=document.createElement('input');fromInput.type='text';fromInput.className='time-input';fromInput.inputMode='decimal';fromInput.value=start;fromInput.setAttribute('aria-label','合図にする集結の残り時間');
+ fromRow.append(fromLabel,...fromBtns,fromInput);
+ const planEl=document.createElement('div');planEl.className='enemy-plan';
+ const ctrl=document.createElement('div');ctrl.className='controls';
+ const startBtn=document.createElement('button');startBtn.type='button';startBtn.className='primary';startBtn.textContent='▶ 開始';
+ const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='リセット';
+ ctrl.append(startBtn,resetBtn);
+ const statusEl=document.createElement('div');statusEl.className='enemy-status';
+ const errorEl=document.createElement('div');errorEl.className='error';
+ card.append(head,fromRow,planEl,ctrl,statusEl,errorEl);
+ $('insEnemyList').append(card);
+ const t={card,nameInput,timeInput,fromInput,fromBtns,delBtn,startBtn,planEl,statusEl,errorEl,running:false,finished:false,plan:null,start:0,lastSec:null,departed:false};
+ insTimers.push(t);
+ [nameInput,timeInput,fromInput].forEach(el=>el.addEventListener('input',onInsertInput));
+ [timeInput,fromInput].forEach(el=>el.addEventListener('blur',()=>normalizeInsertTime(el)));
+ fromBtns.forEach(b=>b.addEventListener('click',()=>{fromInput.value=b.textContent;onInsertInput();}));
+ delBtn.addEventListener('click',()=>{if(t.running)return;insTimers.splice(insTimers.indexOf(t),1);card.remove();saveInsert();renderInsertFocus();});
+ startBtn.addEventListener('click',()=>startEnemy(t));
+ resetBtn.addEventListener('click',()=>resetEnemy(t));
+ card.addEventListener('animationend',e=>{if(e.animationName==='panelFlash')card.classList.remove('panel-flash');});
+ renderEnemyPlan(t);
+ return t;
+}
+function startEnemy(t){
+ if(t.running)return;
+ const p=renderEnemyPlan(t);if(!p)return;
+ t.plan=p;t.running=true;t.finished=false;t.start=performance.now();t.lastSec=null;t.departed=false;
+ $('insBgNotice').textContent='';setEnemyRunningUI(t,true);
+ requestWakeLock();
+ if(insRaf===null)insTick();
+}
+function resetEnemy(t){
+ t.running=false;t.finished=false;t.departed=false;t.lastSec=null;setEnemyRunningUI(t,false);renderEnemyPlan(t);
+ if(!insAnyRunning()){if(insRaf!==null)cancelAnimationFrame(insRaf);insRaf=null;releaseWakeLockIfIdle();}
+ renderInsertFocus();
+}
+function resetAllInsert(){
+ insTimers.forEach(t=>{t.running=false;t.finished=false;t.departed=false;t.lastSec=null;setEnemyRunningUI(t,false);renderEnemyPlan(t);});
+ if(insRaf!==null)cancelAnimationFrame(insRaf);insRaf=null;releaseWakeLockIfIdle();
+ $('insEvent').textContent='';$('insBgNotice').textContent='';renderInsertFocus();
+}
+// 1つの集結の秒単位の更新。出発したら true を返す。
+function updateEnemy(t,sec){
+ const p=t.plan;let departedNow=false;
+ if(!t.departed&&sec>=p.depart){
+  t.departed=true;departedNow=true;const late=sec-p.depart;
+  $('insEvent').textContent=`${p.name} に出発！`+(late>0?`（${late}秒遅れて検出）`:'');insLastEventAt=performance.now();
+  flashPanel($('insPanel'));flashPanel(t.card);
+  if(late===0)speakSecond(0);
+ }
+ if(!t.departed)t.statusEl.textContent=`${sec<p.from?'集結残り '+formatTime(p.from-sec):'敵の行軍中'}／出発まで あと ${p.depart-sec} 秒`;
+ else if(sec<p.myLand)t.statusEl.textContent=`出発済み ✓／自軍の着弾まで ${p.myLand-sec} 秒`+(sec<p.enemyLand?`（敵の着弾まで ${p.enemyLand-sec} 秒）`:'');
+ if(sec>=p.myLand){t.running=false;t.finished=true;t.statusEl.textContent='✓ 差し込み完了';setEnemyRunningUI(t,false);}
+ return departedNow;
 }
 function insTick(){
- if(insMode!=='running')return;
- const p=insPlan;const sec=Math.floor((performance.now()-insStart)/1000);
- if(sec!==insLastSec){
-  insLastSec=sec;
-  // 大きな表示：敵のタイマー（ゲーム内の集結残り → 敵の行軍中は着弾までの秒数）
-  if(sec<p.from){$('insPhase').textContent='敵の集結 残り';$('insDisplay').textContent=formatTime(p.from-sec);}
-  else if(sec<p.enemyLand){$('insPhase').textContent='敵の行軍中・着弾まで';$('insDisplay').className='timer';$('insDisplay').textContent=String(p.enemyLand-sec);}
-  else{$('insPhase').textContent='敵が着弾・自軍の着弾まで';$('insDisplay').className='timer';$('insDisplay').textContent=String(Math.max(0,p.myLand-sec));}
-  // 出発の判定（秒が飛んでも「出発時刻を過ぎていて未出発」なら出発させる）
-  if(!insDeparted&&sec>=p.depart){
-   insDeparted=true;const late=sec-p.depart;
-   $('insEvent').textContent='出発！'+(late>0?`（${late}秒遅れて検出）`:'');
-   flashPanel($('insPanel'));
-   if(late===0)speakSecond(0);
-  }else if(!insDeparted){
-   const left=p.depart-sec;if(left<=10)speakSecond(left);
-  }
-  if(insDeparted){$('insNextLabel').textContent='出発済み ✓';$('insRemaining').textContent=sec<p.myLand?`自軍の着弾まで ${p.myLand-sec} 秒`:'差し込み完了';}
-  else{$('insNextLabel').textContent='自分の出発まで';$('insRemaining').textContent=`あと ${p.depart-sec} 秒`;}
-  $('insSub').textContent=sec<p.enemyLand?`敵の着弾まで ${p.enemyLand-sec} 秒`:'敵が着弾しました';
-  if(sec>=p.myLand){insMode='finished';$('insPhase').textContent='差し込み完了';insRaf=null;releaseWakeLockIfIdle();setInsertRunningUI(false);return;}
- }
+ const now=performance.now();
+ insTimers.forEach(t=>{
+  if(!t.running)return;
+  const sec=Math.floor((now-t.start)/1000);
+  if(sec!==t.lastSec){t.lastSec=sec;updateEnemy(t,sec);}
+ });
+ renderInsertFocus(now);
+ if(!insAnyRunning()){insRaf=null;releaseWakeLockIfIdle();return;}
  insRaf=requestAnimationFrame(insTick);
 }
-function resetInsert(){
- if(insRaf!==null)cancelAnimationFrame(insRaf);insRaf=null;insMode='idle';releaseWakeLockIfIdle();setInsertRunningUI(false);
- insDeparted=false;insLastSec=null;$('insEvent').textContent='';$('insBgNotice').textContent='';$('insPhase').textContent='敵の集結 残り';$('insNextLabel').textContent='自分の出発まで';$('insDisplay').className='timer countdown';
- renderInsertCalc();
+// 上の大きな表示：まだ出発していない集結のうち、出発がいちばん早いものを表示する。
+// 全員出発済みなら、着弾がいちばん早いものを表示する。読み上げもこの集結だけを対象にする。
+function renderInsertFocus(now=performance.now()){
+ const running=insTimers.filter(t=>t.running);
+ const pending=running.filter(t=>!t.departed).sort((a,b)=>(a.start+a.plan.depart*1000)-(b.start+b.plan.depart*1000));
+ const others=running.length-1;
+ $('insPanel').classList.toggle('idle',!running.length);
+ if(!running.length){
+  $('insPhase').textContent='次の出発';$('insDisplay').className='timer countdown';$('insDisplay').textContent='--';
+  $('insNextLabel').textContent='待機中';$('insRemaining').textContent='敵の集結ごとに「開始」を押してください';$('insSub').textContent='';insSpoken=null;
+  if(now-insLastEventAt>3000)$('insEvent').textContent='';
+  return;
+ }
+ if(pending.length){
+  const t=pending[0];const p=t.plan;const sec=Math.floor((now-t.start)/1000);const left=Math.max(0,p.depart-sec);
+  $('insPhase').textContent=`次の出発：${p.name}`+(sec<p.from?'（集結 残り）':'（敵の行軍中・着弾まで）');
+  $('insDisplay').className=sec<p.from?'timer countdown':'timer';
+  $('insDisplay').textContent=sec<p.from?formatTime(p.from-sec):String(Math.max(0,p.enemyLand-sec));
+  $('insNextLabel').textContent='自分の出発まで';$('insRemaining').textContent=`あと ${left} 秒`;
+  // 読み上げ：次に出発する集結の残り10秒から（同じ値は1回だけ）
+  const key=t.start+':'+left;
+  if(left<=10&&left>0&&insSpoken!==key){insSpoken=key;speakSecond(left);}
+ }else{
+  const t=running.slice().sort((a,b)=>(a.start+a.plan.myLand*1000)-(b.start+b.plan.myLand*1000))[0];const p=t.plan;const sec=Math.floor((now-t.start)/1000);
+  $('insPhase').textContent=`${p.name}：出発済み ✓`;$('insDisplay').className='timer';$('insDisplay').textContent=String(Math.max(0,p.myLand-sec));
+  $('insNextLabel').textContent='自軍の着弾まで';$('insRemaining').textContent=`あと ${Math.max(0,p.myLand-sec)} 秒`;
+ }
+ $('insSub').textContent=others>0?`ほかに実行中の集結：${others}件（下の一覧で確認できます）`:'';
 }
 function loadInsert(){
  let d=null;try{d=JSON.parse(localStorage.getItem(INSERT_KEY)||'null');}catch(e){}
  if(d&&typeof d==='object'){
-  $('insMyTime').value=String(d.my||'');$('insGap').value=d.gap===undefined||d.gap===''?'1':String(d.gap);$('insStartFrom').value=String(d.start||'2:00');
-  const list=Array.isArray(d.enemies)&&d.enemies.length?d.enemies:[{name:'',time:''}];
-  list.forEach((e,i)=>addEnemyRow(String(e.name||''),String(e.time||''),i===d.target));
- }else{$('insMyTime').value='0:35';addEnemyRow('敵A','0:30',true);}
+  $('insMyTime').value=String(d.my||'');$('insGap').value=d.gap===undefined||d.gap===''?'1':String(d.gap);
+  const list=Array.isArray(d.enemies)&&d.enemies.length?d.enemies:[{}];
+  list.forEach(e=>addEnemyCard(String(e.name||''),String(e.time||''),String(e.start||d.start||'2:00')));
+ }else{$('insMyTime').value='0:35';addEnemyCard('敵A','0:30','2:00');addEnemyCard('敵B','0:45','2:00');}
 }
 // 読み上げのON/OFFは両方のタブで共通にする
 $('insVoice').addEventListener('change',()=>{$('voiceEnabled').checked=$('insVoice').checked;onVoiceToggle();});
 $('voiceEnabled').addEventListener('change',()=>{$('insVoice').checked=$('voiceEnabled').checked;});
-['insMyTime','insGap','insStartFrom'].forEach(id=>$(id).addEventListener('input',onInsertInput));
-['insMyTime','insStartFrom'].forEach(id=>$(id).addEventListener('blur',()=>normalizeInsertTime($(id))));
-document.querySelectorAll('[data-start-from]').forEach(b=>b.addEventListener('click',()=>{$('insStartFrom').value=b.dataset.startFrom;onInsertInput();}));
-$('insAddBtn').addEventListener('click',()=>{addEnemyRow();onInsertInput();});
-$('insStartBtn').addEventListener('click',startInsert);$('insResetBtn').addEventListener('click',resetInsert);
+['insMyTime','insGap'].forEach(id=>$(id).addEventListener('input',onInsertInput));
+$('insMyTime').addEventListener('blur',()=>normalizeInsertTime($('insMyTime')));
+$('insAddBtn').addEventListener('click',()=>{addEnemyCard();saveInsert();});
+$('insResetAllBtn').addEventListener('click',resetAllInsert);
 // タブ切り替え（どちらのタブのタイマーも、切り替えても止まらない）
 const TAB_KEY='whiteoutMarchTimer_tab';
 function showTab(name){
@@ -424,7 +485,7 @@ function showTab(name){
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
 
 loadData();calculate(false);resetTimer();
-loadInsert();resetInsert();
+loadInsert();renderInsertFocus();
 {let t='sync';try{t=localStorage.getItem(TAB_KEY)||'sync';}catch(e){}showTab(t==='insert'?'insert':'sync');}
 })();
 </script>
