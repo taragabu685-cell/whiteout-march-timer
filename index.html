@@ -12,7 +12,7 @@ h1{font-size:clamp(1.35rem,4vw,2rem);text-align:center;margin:6px 0 8px}.subtitl
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}h2{font-size:1.1rem;margin:0 0 12px}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:300px}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:.86rem;color:var(--muted)}input[type=text],input[type=number]{width:100%;min-width:0;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit}input:focus{outline:2px solid #6aa9ff;outline-offset:1px}.name-input{min-width:90px}.time-input{min-width:100px}
 button{font:inherit;font-weight:650;border:1px solid #53647b;border-radius:10px;padding:10px 13px;background:#27364a;color:var(--text);cursor:pointer}button:hover{filter:brightness(1.13)}button:disabled{opacity:.45;cursor:not-allowed;filter:none}button:focus-visible{outline:2px solid #8cc1ff;outline-offset:2px}.primary{background:#1e805a;border-color:#39b987}.danger{background:#48252b;border-color:#8e414b}.small{padding:7px 9px;font-size:.9rem}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voice{display:inline-flex;align-items:center;gap:8px;color:var(--muted);padding:8px 3px}.voice input{width:18px;height:18px}
-.timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}
+.timer-panel{text-align:center;padding:14px 12px 22px}.phase{font-size:.95rem;color:var(--muted);margin:4px 0}.timer{font-size:clamp(5.5rem,23vw,10rem);line-height:1.05;font-weight:850;font-variant-numeric:tabular-nums;margin:12px 0;color:#fff}.timer.launch{color:var(--green);text-shadow:0 0 14px #39f59b66;animation:flash .45s ease-in-out 3}.timer.countdown{color:var(--gold)}@keyframes flash{50%{opacity:.38}}.timer-panel.panel-flash{animation:panelFlash .3s ease-in-out 3}@keyframes panelFlash{50%{background:#1f8f5f;border-color:var(--green);box-shadow:0 0 0 4px #39f59b55}}.timer-panel.panel-flash .event{color:#fff}
 .event{font-size:clamp(1.7rem,6vw,3.4rem);font-weight:800;color:var(--green);min-height:1.35em}.next-label{color:var(--muted);margin-top:18px}.next-player{font-size:clamp(1.6rem,5vw,2.5rem);font-weight:800;color:var(--gold);overflow-wrap:anywhere}.remaining{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}.hint{color:var(--muted);font-size:.9rem;line-height:1.6}.results-list,.status-list{display:grid;gap:8px}.copy-note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:8px 0 0}.copy-area{width:100%;min-height:110px;resize:vertical;background:#0f1722;color:var(--text);border:1px solid #46566b;border-radius:8px;padding:10px;font:inherit;line-height:1.5}.result-row,.status-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;background:#101a27}.result-row strong,.status-row strong{overflow-wrap:anywhere}.done{color:var(--green)}.error{color:var(--red);min-height:1.3em;margin-top:8px}.empty{color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px}
 @media(min-width:700px){.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.columns .panel{margin:0}.timer-panel{padding:20px}}
 </style>
@@ -163,9 +163,17 @@ function fireEventsAt(second){
  if(firedNames.length){
   $('event').textContent=`${firedNames.join('・')} 出征！`+(maxLate>0?`（${maxLate}秒遅れて検出）`:'');
   $('display').classList.remove('launch');void $('display').offsetWidth;$('display').classList.add('launch');
+  flashPanel();
  }
  renderStatus();updateNext(second);
 }
+// 出征の瞬間にタイマーの枠全体を緑に点滅させる（数字の点滅に加えて、離れた位置からも気づけるように）。
+// 1秒以内に終わる長さにして、次の出征の点滅と重ならないようにしている。表示だけの処理で計時には関与しない。
+function flashPanel(){
+ const panel=document.querySelector('.timer-panel');
+ panel.classList.remove('panel-flash');void panel.offsetWidth;panel.classList.add('panel-flash');
+}
+document.querySelector('.timer-panel').addEventListener('animationend',e=>{if(e.animationName==='panelFlash')e.currentTarget.classList.remove('panel-flash');});
 function stopLoop(){if(rafId!==null)cancelAnimationFrame(rafId);rafId=null;}
 // 画面の自動消灯防止（Wake Lock）。タイマー実行中だけ有効にする。
 // タイマーの計時には関与しないため、使えない端末でもタイマーはそのまま動く。
