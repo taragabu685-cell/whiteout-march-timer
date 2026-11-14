@@ -24,6 +24,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 .enemy-list{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}.enemy-card{border:1px solid var(--line);border-radius:12px;padding:12px;background:#152030}.enemy-card.running{border-color:#39b987}.enemy-head{display:grid;grid-template-columns:1fr 92px auto;gap:8px;align-items:center}.enemy-head .name-input,.enemy-head .time-input{min-width:0}.enemy-card .start-from{margin-top:10px}.enemy-card .start-from{gap:6px;flex-wrap:wrap}.enemy-card .start-from button{padding:7px 8px}.enemy-card .start-from input{flex:1 1 60px;width:auto;min-width:58px;max-width:90px;padding:8px}.enemy-card .start-from .hint{white-space:nowrap;flex-basis:100%;font-size:.85rem}.enemy-plan{margin-top:8px;line-height:1.6}.enemy-plan strong{color:var(--gold)}.enemy-status{margin-top:8px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;min-height:1.4em}.enemy-card .error{min-height:0;margin-top:4px}
 .timer-panel.idle .timer,.timer-panel.idle .event:empty{display:none}.timer-panel.idle .remaining{font-size:1.05rem;color:var(--muted);font-weight:650}
 .ins-order{margin:14px auto 0;max-width:460px;text-align:left;display:grid;gap:6px}.ins-order:empty{display:none}.ins-order-title{color:var(--muted);font-size:.88rem;text-align:center}.order-row{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:9px;background:#101a27;font-variant-numeric:tabular-nums}.order-row.next{outline:2px solid var(--gold)}.order-row.landed{opacity:.6}.order-rank{font-weight:800;color:var(--gold);text-align:center}.order-name{font-weight:700;overflow-wrap:anywhere}.order-name small{display:block;font-weight:500;color:var(--muted);font-size:.8rem}.order-land{font-weight:700;color:var(--orange);text-align:right}.enemy-rank{display:inline-block;margin-bottom:8px;padding:2px 10px;border-radius:999px;background:#3a2f12;color:var(--gold);font-weight:800;font-size:.9rem}.enemy-rank:empty{display:none}
+.adjust-row{display:flex;justify-content:center;align-items:center;gap:10px;margin:4px 0 6px}.adjust-btn{min-width:84px;padding:12px 10px;font-size:1.1rem;font-variant-numeric:tabular-nums}.adjust-label{color:var(--muted);font-size:.85rem;line-height:1.4;min-width:6.5em}.enemy-card .adjust-row{justify-content:flex-start;margin-top:8px}.enemy-card .adjust-btn{min-width:64px;padding:8px;font-size:.95rem}
 .ins-sub{color:var(--muted);font-size:1.05rem;margin-top:8px;font-variant-numeric:tabular-nums}
 </style>
 </head>
@@ -55,6 +56,7 @@ h3{font-size:1rem;margin:18px 0 8px}.form-grid{display:grid;grid-template-column
 <section class="panel timer-panel" id="insPanel" aria-live="polite">
 <div class="phase" id="insPhase">次の出発</div>
 <div id="insDisplay" class="timer countdown">--</div>
+<div id="insAdjust" class="adjust-row" hidden><button type="button" class="adjust-btn" data-adjust="-1">−1秒</button><span id="insAdjustLabel" class="adjust-label"></span><button type="button" class="adjust-btn" data-adjust="1">＋1秒</button></div>
 <div id="insEvent" class="event"></div>
 <div class="next-label" id="insNextLabel">自分の出発まで</div>
 <div id="insRemaining" class="remaining">---</div>
@@ -356,6 +358,7 @@ function setEnemyRunningUI(t,active){
  t.startBtn.disabled=active;t.startBtn.textContent=active?'実行中…':'▶ 開始';
  [t.nameInput,t.timeInput,t.fromInput,t.delBtn,...t.fromBtns].forEach(el=>el.disabled=active);
  t.card.classList.toggle('running',active);
+ t.adjRow.hidden=!active;
 }
 function addEnemyCard(name='',time='',start='2:00'){
  const card=document.createElement('div');card.className='enemy-card';
@@ -375,11 +378,16 @@ function addEnemyCard(name='',time='',start='2:00'){
  const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.textContent='リセット';
  ctrl.append(startBtn,resetBtn);
  const statusEl=document.createElement('div');statusEl.className='enemy-status';
+ const adjRow=document.createElement('div');adjRow.className='adjust-row';adjRow.hidden=true;
+ const adjMinus=document.createElement('button');adjMinus.type='button';adjMinus.className='adjust-btn';adjMinus.textContent='−1秒';
+ const adjLabel=document.createElement('span');adjLabel.className='adjust-label';
+ const adjPlus=document.createElement('button');adjPlus.type='button';adjPlus.className='adjust-btn';adjPlus.textContent='＋1秒';
+ adjRow.append(adjMinus,adjPlus,adjLabel);
  const rankEl=document.createElement('div');rankEl.className='enemy-rank';
  const errorEl=document.createElement('div');errorEl.className='error';
- card.append(rankEl,head,fromRow,planEl,ctrl,statusEl,errorEl);
+ card.append(rankEl,head,fromRow,planEl,ctrl,statusEl,adjRow,errorEl);
  $('insEnemyList').append(card);
- const t={card,nameInput,timeInput,fromInput,fromBtns,delBtn,startBtn,planEl,statusEl,errorEl,rankEl,running:false,finished:false,plan:null,start:0,lastSec:null,departed:false};
+ const t={card,nameInput,timeInput,fromInput,fromBtns,delBtn,startBtn,planEl,statusEl,errorEl,rankEl,adjRow,adjLabel,adjust:0,running:false,finished:false,plan:null,start:0,lastSec:null,departed:false};
  insTimers.push(t);
  [nameInput,timeInput,fromInput].forEach(el=>el.addEventListener('input',onInsertInput));
  [timeInput,fromInput].forEach(el=>el.addEventListener('blur',()=>normalizeInsertTime(el)));
@@ -387,6 +395,7 @@ function addEnemyCard(name='',time='',start='2:00'){
  delBtn.addEventListener('click',()=>{if(t.running)return;insTimers.splice(insTimers.indexOf(t),1);card.remove();saveInsert();renderInsertFocus();});
  startBtn.addEventListener('click',()=>startEnemy(t));
  resetBtn.addEventListener('click',()=>resetEnemy(t));
+ adjMinus.addEventListener('click',()=>adjustEnemy(t,-1));adjPlus.addEventListener('click',()=>adjustEnemy(t,1));
  card.addEventListener('animationend',e=>{if(e.animationName==='panelFlash')card.classList.remove('panel-flash');});
  renderEnemyPlan(t);
  return t;
@@ -394,7 +403,7 @@ function addEnemyCard(name='',time='',start='2:00'){
 function startEnemy(t){
  if(t.running)return;
  const p=renderEnemyPlan(t);if(!p)return;
- t.plan=p;t.running=true;t.finished=false;t.start=performance.now();t.lastSec=null;t.departed=false;
+ t.plan=p;t.running=true;t.finished=false;t.start=performance.now();t.lastSec=null;t.departed=false;t.adjust=0;renderAdjustLabel(t);
  $('insBgNotice').textContent='';setEnemyRunningUI(t,true);
  requestWakeLock();
  if(insRaf===null)insTick();
@@ -409,6 +418,20 @@ function resetAllInsert(){
  if(insRaf!==null)cancelAnimationFrame(insRaf);insRaf=null;releaseWakeLockIfIdle();
  $('insEvent').textContent='';$('insBgNotice').textContent='';renderInsertFocus();
 }
+// ずれ補正：実行中のタイマーをその場で1秒ずつ前後させる。
+// 「＋1秒」で残り時間が1秒増える（アプリの表示がゲームより1秒少ないとき）、
+// 「−1秒」で残り時間が1秒減る（アプリの表示がゲームより1秒多いとき）。
+// 開始時刻（基準時刻）をずらすだけなので、その後の計時の正確さは変わらない。
+// 出発済みの集結は、補正しても出発前には戻さない。
+function adjustEnemy(t,d){
+ if(!t||!t.running)return;
+ t.start+=d*1000;t.adjust+=d;t.lastSec=null;insOrderKey='';
+ renderAdjustLabel(t);
+ if(insRaf===null)insTick();
+}
+function adjustText(t){return t.adjust===0?'補正なし':`補正 ${t.adjust>0?'＋':'−'}${Math.abs(t.adjust)}秒`;}
+function renderAdjustLabel(t){t.adjLabel.textContent=adjustText(t)+'（ゲームと比べて合わせる）';}
+let insFocusTimer=null;
 // 1つの集結の秒単位の更新。出発したら true を返す。
 function updateEnemy(t,sec){
  const p=t.plan;let departedNow=false;
@@ -436,12 +459,19 @@ function insTick(){
 }
 // 上の大きな表示：まだ出発していない集結のうち、出発がいちばん早いものを表示する。
 // 全員出発済みなら、着弾がいちばん早いものを表示する。読み上げもこの集結だけを対象にする。
+// 上の大きな表示の補正ボタンは、いま表示している集結に効く
+function setFocusAdjust(t){
+ insFocusTimer=t;
+ const text=`${t.plan.name}：${adjustText(t)}`;
+ if($('insAdjustLabel').textContent!==text)$('insAdjustLabel').textContent=text;
+}
 function renderInsertFocus(now=performance.now()){
  const running=insTimers.filter(t=>t.running);
  const pending=running.filter(t=>!t.departed).sort((a,b)=>(a.start+a.plan.depart*1000)-(b.start+b.plan.depart*1000));
  const others=running.length-1;
  $('insPanel').classList.toggle('idle',!running.length);
- if(!running.length){
+ $('insAdjust').hidden=!running.length;
+ if(!running.length){insFocusTimer=null;
   $('insPhase').textContent='次の出発';$('insDisplay').className='timer countdown';$('insDisplay').textContent='--';
   $('insNextLabel').textContent='待機中';$('insRemaining').textContent='敵の集結ごとに「開始」を押してください';$('insSub').textContent='';insSpoken=null;renderLandingOrder([],now,null);
   if(now-insLastEventAt>3000)$('insEvent').textContent='';
@@ -449,6 +479,7 @@ function renderInsertFocus(now=performance.now()){
  }
  if(pending.length){
   const t=pending[0];const p=t.plan;const sec=Math.floor((now-t.start)/1000);const left=Math.max(0,p.depart-sec);
+  setFocusAdjust(t);
   $('insPhase').textContent=`次の出発：${p.name}`+(sec<p.from?'（集結 残り）':'（敵の行軍中・着弾まで）');
   $('insDisplay').className=sec<p.from?'timer countdown':'timer';
   $('insDisplay').textContent=sec<p.from?formatTime(p.from-sec):String(Math.max(0,p.enemyLand-sec));
@@ -458,6 +489,7 @@ function renderInsertFocus(now=performance.now()){
   if(left<=10&&left>0&&insSpoken!==key){insSpoken=key;speakSecond(left);}
  }else{
   const t=running.slice().sort((a,b)=>(a.start+a.plan.myLand*1000)-(b.start+b.plan.myLand*1000))[0];const p=t.plan;const sec=Math.floor((now-t.start)/1000);
+  setFocusAdjust(t);
   $('insPhase').textContent=`${p.name}：出発済み ✓`;$('insDisplay').className='timer';$('insDisplay').textContent=String(Math.max(0,p.myLand-sec));
   $('insNextLabel').textContent='自軍の着弾まで';$('insRemaining').textContent=`あと ${Math.max(0,p.myLand-sec)} 秒`;
  }
@@ -507,6 +539,7 @@ $('voiceEnabled').addEventListener('change',()=>{$('insVoice').checked=$('voiceE
 $('insMyTime').addEventListener('blur',()=>normalizeInsertTime($('insMyTime')));
 $('insAddBtn').addEventListener('click',()=>{addEnemyCard();saveInsert();});
 $('insResetAllBtn').addEventListener('click',resetAllInsert);
+document.querySelectorAll('#insAdjust [data-adjust]').forEach(b=>b.addEventListener('click',()=>adjustEnemy(insFocusTimer,Number(b.dataset.adjust))));
 // タブ切り替え（どちらのタブのタイマーも、切り替えても止まらない）
 const TAB_KEY='whiteoutMarchTimer_tab';
 function showTab(name){
